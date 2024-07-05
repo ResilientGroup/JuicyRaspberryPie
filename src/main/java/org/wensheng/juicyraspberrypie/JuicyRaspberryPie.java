@@ -5,6 +5,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import org.wensheng.juicyraspberrypie.command.Handler;
 import org.wensheng.juicyraspberrypie.command.Registry;
 import org.wensheng.juicyraspberrypie.command.entity.EntityByPlayerNameProvider;
 import org.wensheng.juicyraspberrypie.command.entity.EntityByUUIDProvider;
@@ -47,6 +48,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -305,5 +307,21 @@ public class JuicyRaspberryPie extends JavaPlugin implements Listener {
 		registry.register("player.performCommand", new org.wensheng.juicyraspberrypie.command.handlers.player.PerformCommand());
 		registry.register("console.performCommand", new org.wensheng.juicyraspberrypie.command.handlers.console.PerformCommand(
 				getLogger(), getConfig().getStringList("console-command-whitelist")));
+		registerJavaEval();
+	}
+
+	private void registerJavaEval() {
+		if (!Feature.JAVA_EVAL.isActive()) {
+			return;
+		}
+
+		try {
+			final Object javaEvalInstance = Class.forName("org.wensheng.juicyraspberrypie.command.handlers.JavaEval")
+					.getConstructor().newInstance();
+			registry.register("eval", (Handler) javaEvalInstance);
+		} catch (ClassNotFoundException | NoClassDefFoundError | NoSuchMethodException | InstantiationException | IllegalAccessException
+				 | InvocationTargetException e) {
+			logger.warning("No eval command possible, because we're running in a JRE, not the required full JDK.");
+		}
 	}
 }
