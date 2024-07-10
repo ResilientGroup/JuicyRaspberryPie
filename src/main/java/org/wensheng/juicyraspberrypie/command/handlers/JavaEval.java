@@ -10,6 +10,8 @@ import org.wensheng.juicyraspberrypie.command.Handler;
 import org.wensheng.juicyraspberrypie.command.Instruction;
 import org.wensheng.juicyraspberrypie.command.SessionAttachment;
 
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -55,8 +57,23 @@ public class JavaEval implements Handler {
 	}
 
 	@Override
-	@SuppressWarnings("PMD.AvoidCatchingGenericException")
+	@SuppressWarnings({"PMD.AvoidCatchingGenericException", "PMD.UseProperClassLoader"})
 	public @NotNull Optional<Object> createContext(@NotNull final JavaPlugin plugin, @NotNull final SessionAttachment sessionAttachment) {
-		return Optional.of(JShell.builder().executionEngine(new LocalExecutionControlProvider(), Map.of()).build());
+		final JShell jshell = JShell.builder().executionEngine(new LocalExecutionControlProvider(), Map.of()).build();
+		// If you need to use BetonQuest:
+		//addClassLoaderClassPaths(plugin, jshell, plugin.getServer().getPluginManager().getPlugin("BetonQuest").getClass().getClassLoader());
+		addClassLoaderClassPaths(plugin, jshell, plugin.getClass().getClassLoader());
+		return Optional.of(jshell);
+	}
+
+	private void addClassLoaderClassPaths(@NotNull final JavaPlugin plugin, final JShell jshell, final ClassLoader classLoader) {
+		if (classLoader instanceof URLClassLoader) {
+			final URL[] urls = ((URLClassLoader) classLoader).getURLs();
+			for (final URL url : urls) {
+				jshell.addToClasspath(url.getPath());
+				plugin.getLogger().info("Added to JShell classpath: " + url.getPath());
+			}
+			addClassLoaderClassPaths(plugin, jshell, classLoader.getParent());
+		}
 	}
 }
