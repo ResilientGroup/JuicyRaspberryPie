@@ -19,14 +19,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @SuppressWarnings({"PMD.CommentRequired", "PMD.AvoidSynchronizedStatement"})
 class RemoteSession {
 	private static final int MAX_COMMANDS_PER_TICK = 9000;
-
-	private boolean pendingRemoval;
 
 	private final Socket socket;
 
@@ -45,7 +44,9 @@ class RemoteSession {
 
 	private final Deque<String> outQueue = new ArrayDeque<>();
 
-	private boolean running = true;
+	private final AtomicBoolean running = new AtomicBoolean(true);
+
+	private final AtomicBoolean pendingRemoval = new AtomicBoolean(false);
 
 	@NotNull
 	private final Registry registry;
@@ -108,8 +109,8 @@ class RemoteSession {
 			}
 		}
 
-		if (!running && inQueue.isEmpty()) {
-			pendingRemoval = true;
+		if (!running.get() && inQueue.isEmpty()) {
+			pendingRemoval.set(true);
 		}
 	}
 
@@ -143,7 +144,7 @@ class RemoteSession {
 	}
 
 	private void send(final String message) {
-		if (pendingRemoval) {
+		if (pendingRemoval.get()) {
 			return;
 		}
 		synchronized (outQueue) {
@@ -152,8 +153,8 @@ class RemoteSession {
 	}
 
 	public void close() {
-		running = false;
-		pendingRemoval = true;
+		running.set(false);
+		pendingRemoval.set(true);
 
 		attachment.close();
 
@@ -174,7 +175,7 @@ class RemoteSession {
 	}
 
 	public boolean isPendingRemoval() {
-		return pendingRemoval;
+		return pendingRemoval.get();
 	}
 
 	public void kick(final String reason) {
@@ -197,18 +198,18 @@ class RemoteSession {
 		@Override
 		public void run() {
 			logger.log(Level.INFO, "Starting input thread");
-			while (running) {
+			while (running.get()) {
 				try {
 					final String newLine = in.readLine();
 					if (newLine == null) {
-						running = false;
+						running.set(false);
 					} else {
 						inQueue.add(newLine);
 					}
 				} catch (final IOException e) {
-					if (running) {
+					if (running.get()) {
 						logger.log(Level.WARNING, "Error occurred in input thread", e);
-						running = false;
+						running.set(false);
 					}
 				}
 			}
@@ -228,7 +229,7 @@ class RemoteSession {
 		@Override
 		public void run() {
 			logger.log(Level.INFO, "Starting output thread!");
-			while (running) {
+			while (running.get()) {
 				try {
 					while (!outQueue.isEmpty()) {
 						out.write(outQueue.poll());
@@ -238,9 +239,9 @@ class RemoteSession {
 					Thread.yield();
 					Thread.sleep(1L);
 				} catch (final IOException | InterruptedException e) {
-					if (running) {
+					if (running.get()) {
 						logger.log(Level.WARNING, "Error occurred in output thread", e);
-						running = false;
+						running.set(false);
 					}
 				}
 			}
