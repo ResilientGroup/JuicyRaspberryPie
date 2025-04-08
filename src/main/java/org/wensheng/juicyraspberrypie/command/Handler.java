@@ -8,11 +8,13 @@ import java.util.Optional;
 /**
  * A handler for a command.
  */
+@FunctionalInterface
 public interface Handler {
 	/**
 	 * Handle the instruction for a command and return the result.
 	 * If an exception is thrown, the result will be "Fail: " followed by the exception message.
 	 *
+	 * @param sessionAttachment the session attachment
 	 * @param instruction the instruction
 	 * @return the result
 	 */

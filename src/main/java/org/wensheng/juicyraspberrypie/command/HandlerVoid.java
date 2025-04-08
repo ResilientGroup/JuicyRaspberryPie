@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * A handler for a command that does not return a result.
  */
+@FunctionalInterface
 public interface HandlerVoid extends Handler {
 	@Override
 	default String handle(@NotNull final SessionAttachment sessionAttachment, @NotNull final Instruction instruction) {
