@@ -8,6 +8,7 @@ import org.wensheng.juicyraspberrypie.command.SessionAttachment;
 /**
  * Provides entities for use in command handlers.
  */
+@FunctionalInterface
 public interface EntityProvider {
 	/**
 	 * Get the entity associated with the given instruction.
