@@ -15,7 +15,6 @@ import static org.hamcrest.Matchers.*;
 class InstructionTests {
 	@Nested
 	class allArguments {
-		@SuppressWarnings("PMD.UnusedPrivateMethod")
 		private static @NotNull Stream<Arguments> consumption() {
 			return Stream.of(
 					Arguments.of("", (Object) new String[0]),

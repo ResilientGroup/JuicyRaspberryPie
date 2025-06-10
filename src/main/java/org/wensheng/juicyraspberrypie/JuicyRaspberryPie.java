@@ -179,7 +179,6 @@ public class JuicyRaspberryPie extends JavaPlugin implements Listener {
 	}
 
 	@Override
-	@SuppressWarnings("PMD.AvoidLiteralsInIfCondition")
 	public boolean onCommand(@NotNull final CommandSender sender, @NotNull final Command command, @NotNull final String label, final String[] args) {
 		if (args.length == 0) {
 			return false;
