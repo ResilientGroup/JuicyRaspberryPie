@@ -29,7 +29,6 @@ public class SetSign implements HandlerVoid {
 	}
 
 	@Override
-	@SuppressWarnings("PMD.PrematureDeclaration")
 	public void handleVoid(@NotNull final SessionAttachment sessionAttachment, @NotNull final Instruction instruction) {
 		final Location loc = instruction.nextLocation();
 		Material material = Material.matchMaterial(instruction.next());

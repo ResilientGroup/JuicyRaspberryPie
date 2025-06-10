@@ -49,7 +49,7 @@ public class ServerListenerThread implements Runnable {
 	}
 
 	@Override
-	@SuppressWarnings({"PMD.PrematureDeclaration", "PMD.CloseResource"})
+	@SuppressWarnings("PMD.CloseResource")
 	public void run() {
 		while (!serverSocket.isClosed()) {
 			try {

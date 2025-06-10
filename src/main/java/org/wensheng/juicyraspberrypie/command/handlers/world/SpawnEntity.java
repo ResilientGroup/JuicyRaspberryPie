@@ -21,7 +21,7 @@ public class SpawnEntity implements Handler {
 	}
 
 	@Override
-	@SuppressWarnings({"PMD.AvoidCatchingGenericException", "PMD.LocalVariableCouldBeFinal"})
+	@SuppressWarnings("PMD.AvoidCatchingGenericException")
 	public String handle(@NotNull final SessionAttachment sessionAttachment, @NotNull final Instruction instruction) {
 		final Location loc = instruction.nextLocation();
 		EntityType entityType;

@@ -21,7 +21,7 @@ public class SpawnParticle implements HandlerVoid {
 	}
 
 	@Override
-	@SuppressWarnings({"PMD.AvoidCatchingGenericException", "PMD.LocalVariableCouldBeFinal"})
+	@SuppressWarnings("PMD.AvoidCatchingGenericException")
 	public void handleVoid(@NotNull final SessionAttachment sessionAttachment, @NotNull final Instruction instruction) {
 		final Location loc = instruction.nextLocation();
 		Particle particle;
